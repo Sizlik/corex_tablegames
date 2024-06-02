@@ -2,6 +2,8 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from core.models import BaseModel
+
 
 class UserManager(BaseUserManager):
 
@@ -19,17 +21,15 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractUser):
-    id = models.AutoField(primary_key=True)
-    username = models.CharField(null=True, unique=False, max_length=150)
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    phone = models.CharField(max_length=20, null=True, blank=True)
+class User(AbstractUser, BaseModel):
+    username = models.CharField(null=True, unique=True, max_length=150)
+    first_name = models.CharField(max_length=255, null=True)
+    last_name = models.CharField(max_length=255, null=True)
+    telegram_id = models.CharField(max_length=255, null=True)
     objects = UserManager()
 
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'phone']
-    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['telegram_id']
+    USERNAME_FIELD = 'username'
     groups = None
     user_permissions = None
 

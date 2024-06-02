@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'user',
     'django_filters',
+    'telegram'
 ]
 
 MIDDLEWARE = [
@@ -136,3 +137,5 @@ CACHES = {
         'TIMEOUT': 604800
     }
 }
+
+TELEGRAM_BOT_TOKEN = env.str('TELEGRAM_BOT_TOKEN')
