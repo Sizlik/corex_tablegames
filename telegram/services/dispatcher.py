@@ -3,6 +3,8 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, BufferedInputFile, CallbackQuery
 
+from user.models import User
+
 dispatcher = Dispatcher()
 
 
@@ -40,7 +42,7 @@ register_keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
 
 @dispatcher.message(F.text, CommandStart())
 async def echo(message: Message):
-    with open('/rosources/poker_tournament.png', 'rb') as f:
+    with open('/app/rosources/poker_tournament.png', 'rb') as f:
         await message.answer_photo(photo=BufferedInputFile(f.read(), filename='poker.png'), caption=start_text,
                                    parse_mode=ParseMode.HTML, reply_markup=keyboard)
 
@@ -51,7 +53,19 @@ async def callback(query: CallbackQuery):
     match data:
         case 'register':
             with open('/rosources/poker_tournament_register.png', 'rb') as f:
+                user = User.objects.filter(telegram_id=str(query.from_user.id)).first()
+                if user:
+                    await query.bot.send_photo(chat_id=query.from_user.id,
+                                               photo=BufferedInputFile(f.read(), filename='poker.png'),
+                                               caption='Вы уже зарегистрированы на турнир, ждите оповещений...',
+                                               reply_markup=register_keyboard)
+                    return
+                User(telegram_id=str(query.from_user.id),
+                     password='123456',
+                     username=query.from_user.username or str(query.from_user.id),
+                     first_name=query.from_user.first_name or None,
+                     last_name=query.from_user.last_name or None).save()
                 await query.bot.send_photo(chat_id=query.from_user.id, photo=BufferedInputFile(f.read(), filename='poker.png'), caption='Вы успешно зарегистрировались на турнир! Чуть позже я сообщу вам всю информацию по турниру!', reply_markup=register_keyboard)
         case 'rules':
-            with open('/rosources/poker_tournament_rules.png', 'rb') as f:
+            with open('/app/rosources/poker_tournament_rules.png', 'rb') as f:
                 await query.bot.send_photo(chat_id=query.from_user.id, photo=BufferedInputFile(f.read(), filename='poker.png'), caption=rules_text, reply_markup=rules_keyboard)
