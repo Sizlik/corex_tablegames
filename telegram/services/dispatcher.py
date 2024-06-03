@@ -52,7 +52,7 @@ async def callback(query: CallbackQuery):
     data = query.data
     match data:
         case 'register':
-            with open('/rosources/poker_tournament_register.png', 'rb') as f:
+            with open('/app/rosources/poker_tournament_register.png', 'rb') as f:
                 user = User.objects.filter(telegram_id=str(query.from_user.id)).first()
                 if user:
                     await query.bot.send_photo(chat_id=query.from_user.id,
