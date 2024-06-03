@@ -55,7 +55,7 @@ async def callback(query: CallbackQuery):
     match data:
         case 'register':
             with open('/app/rosources/poker_tournament_register.png', 'rb') as f:
-                user = await asyncio.to_thread(User.objects.filter(telegram_id=str(query.from_user.id)).first())
+                user = await asyncio.to_thread(User.objects.filter(telegram_id=str(query.from_user.id)).first)
                 if user:
                     await query.bot.send_photo(chat_id=query.from_user.id,
                                                photo=BufferedInputFile(f.read(), filename='poker.png'),
@@ -66,7 +66,7 @@ async def callback(query: CallbackQuery):
                                         password='123456',
                                         username=query.from_user.username or str(query.from_user.id),
                                         first_name=query.from_user.first_name or None,
-                                        last_name=query.from_user.last_name or None).save())
+                                        last_name=query.from_user.last_name or None).save)
                 await query.bot.send_photo(chat_id=query.from_user.id, photo=BufferedInputFile(f.read(), filename='poker.png'), caption='Вы успешно зарегистрировались на турнир! Чуть позже я сообщу вам всю информацию по турниру!', reply_markup=register_keyboard)
         case 'rules':
             with open('/app/rosources/poker_tournament_rules.png', 'rb') as f:
