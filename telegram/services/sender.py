@@ -33,7 +33,7 @@ class TelegramSender:
         notifications = []
         for user in users:
             await self._send(user.telegram_id, self.message.message, keyboard)
-            notifications.append(Notification(user=user, message=self.message))
+            await Notification(user=user, message=self.message).asave()
             await asyncio.sleep(10)
 
         await Notification.objects.abulk_create(notifications, batch_size=2000)

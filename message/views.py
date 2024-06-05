@@ -1,3 +1,5 @@
+from threading import Thread
+
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 
@@ -15,7 +17,7 @@ class MessageViewSet(ModelViewSet):
     def perform_create(self, serializer):
         # print(serializer.instance)
         serializer.save()
-        TelegramSender(serializer.instance).send_all_users()
+        Thread(target=TelegramSender(serializer.instance).send_all_users).start()
 
 
 class ButtonViewSet(ModelViewSet):
