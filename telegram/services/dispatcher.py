@@ -1,10 +1,11 @@
 import asyncio
 
-from aiogram import Dispatcher, F, Bot
+from aiogram import Dispatcher, F
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, BufferedInputFile, CallbackQuery
 
+from notification.models import Notification
 from user.models import User
 
 dispatcher = Dispatcher()
@@ -71,3 +72,35 @@ async def callback(query: CallbackQuery):
         case 'rules':
             with open('/app/rosources/poker_tournament_rules.png', 'rb') as f:
                 await query.bot.send_photo(chat_id=query.from_user.id, photo=BufferedInputFile(f.read(), filename='poker.png'), caption=rules_text, reply_markup=rules_keyboard)
+        case '0706poker_yes':
+            notification = await Notification.objects.select_related('message').filter(user__telegram_id=str(query.from_user.id),
+                                                                                       message__message=query.message.text).afirst()
+
+            actions_count = await Notification.objects.filter(message__message=query.message.text,
+                                                              action=Notification.ActionType.ACCEPT).acount()
+            print(notification.message.max_actions > actions_count)
+            if notification.message.max_actions > actions_count or notification.action == Notification.ActionType.ACCEPT:
+                if notification.action != Notification.ActionType.ACCEPT:
+                    await query.bot.send_message(chat_id=query.from_user.id, text='Вы успешно зарегистрированы на покер в эту пятницу')
+                    notification.action = Notification.ActionType.ACCEPT
+                else:
+                    await query.bot.send_message(chat_id=query.from_user.id,
+                                                 text='Вы уже зарегистрированы на покер в эту пятницу')
+            else:
+                await query.bot.send_message(chat_id=query.from_user.id, text='Мы уже набрали максимальное число участников')
+
+                await notification.asave(update_fields=['action'])
+
+        case '0706poker_no':
+            notification = await Notification.objects.filter(user__telegram_id=str(query.from_user.id),
+                                                             message__message=query.message.text).afirst()
+            notification.action = Notification.ActionType.DECLINE
+            await query.bot.send_message(chat_id=query.from_user.id,
+                                         text='Вы отказались от участия в эту пятницу')
+            await notification.asave(update_fields=['action'])
+
+    # try:
+    #     await query.bot.edit_message_reply_markup(chat_id=query.from_user.id, message_id=query.message.message_id, reply_markup=None)
+    # except Exception as e:
+    #     print(e)
+

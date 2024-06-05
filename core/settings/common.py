@@ -29,7 +29,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'user',
     'django_filters',
-    'telegram'
+    'telegram',
+    'notification',
+    'message'
 ]
 
 MIDDLEWARE = [
