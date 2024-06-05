@@ -89,7 +89,7 @@ async def callback(query: CallbackQuery):
             else:
                 await query.bot.send_message(chat_id=query.from_user.id, text='Мы уже набрали максимальное число участников')
 
-                await notification.asave(update_fields=['action'])
+            await notification.asave(update_fields=['action'])
 
         case '0706poker_no':
             notification = await Notification.objects.filter(user__telegram_id=str(query.from_user.id),
